@@ -1,95 +1,78 @@
+#ifndef MONTY_H
+#define MONTY_H
+#include <stdio.h>
 #include <stdlib.h>
-
-char *get_int(int num);
-unsigned int _abs(int);
-int get_numbase_len(unsigned int num, unsigned int base);
-void fill_numbase_buff(unsigned int num, unsigned int base,
-		       char *buff, int buff_size);
-
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <ctype.h>
 /**
- * get_int - gets a character pointer to new string containing int
- * @num: number to convert to string
+ * struct stack_s - doubly linked list representation of a stack (or queue)
+ * @n: integer
+ * @prev: points to the previous element of the stack (or queue)
+ * @next: points to the next element of the stack (or queue)
  *
- * Return: character pointer to newly created string. NULL if malloc fails.
+ * Description: doubly linked list node structure
+ * for stack, queues, LIFO, FIFO Holberton project
  */
-char *get_int(int num)
+typedef struct stack_s
 {
-	unsigned int temp;
-	int length = 0;
-	long num_l = 0;
-	char *ret;
-
-	temp = _abs(num);
-	length = get_numbase_len(temp, 10);
-
-	if (num < 0 || num_l < 0)
-		length++; /* negative sign */
-	ret = malloc(length + 1); /* create new string */
-	if (!ret)
-		return (NULL);
-
-	fill_numbase_buff(temp, 10, ret, length);
-	if (num < 0 || num_l < 0)
-		ret[0] = '-';
-
-	return (ret);
-}
-
+	int n;
+	struct stack_s *prev;
+	struct stack_s *next;
+} stack_t;
 /**
- * _abs - gets the absolute value of an integer
- * @i: integer to get absolute value of
- *
- * Return: unsigned integer abs rep of i
+ * struct bus_s - variables -args, file, line content
+ * @arg: value
+ * @file: pointer to monty file
+ * @content: line content
+ * @lifi: flag change stack <-> queue
+ * Description: carries values through the program
  */
-unsigned int _abs(int i)
+typedef struct bus_s
 {
-	if (i < 0)
-		return (-(unsigned int)i);
-	return ((unsigned int)i);
-}
-
+	char *arg;
+	FILE *file;
+	char *content;
+	int lifi;
+}  bus_t;
+extern bus_t bus;
 /**
- * get_numbase_len - gets length of buffer needed for an unsigned int
- * @num: number to get length needed for
- * @base: base of number representation used by buffer
+ * struct instruction_s - opcode and its function
+ * @opcode: the opcode
+ * @f: function to handle the opcode
  *
- * Return: integer containing length of buffer needed (doesn't contain null bt)
+ * Description: opcode and its function
+ * for stack, queues, LIFO, FIFO Holberton project
  */
-int get_numbase_len(unsigned int num, unsigned int base)
+typedef struct instruction_s
 {
-	int len = 1; /* all numbers contain atleast one digit */
-
-	while (num > base - 1)
-	{
-		len++;
-		num /= base;
-	}
-	return (len);
-}
-
-/**
- * fill_numbase_buff - fills buffer with correct numbers up to base 36
- * @num: number to convert to string given base
- * @base: base of number used in conversion, only works up to base 36
- * @buff: buffer to fill with result of conversion
- * @buff_size: size of buffer in bytes
- *
- * Return: always void.
- */
-void fill_numbase_buff(unsigned int num, unsigned int base,
-			char *buff, int buff_size)
-{
-	int rem, i = buff_size - 1;
-
-	buff[buff_size] = '\0';
-	while (i >= 0)
-	{
-		rem = num % base;
-		if (rem > 9) /* return lowercase ascii val representation */
-			buff[i] = rem + 87; /* 10 will be a, 11 = b, ... */
-		else
-			buff[i] = rem + '0';
-		num /= base;
-		i--;
-	}
-}
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int line_number);
+} instruction_t;
+char *_realloc(char *ptr, unsigned int old_size, unsigned int new_size);
+ssize_t getstdin(char **lineptr, int file);
+char  *clean_line(char *content);
+void f_push(stack_t **head, unsigned int number);
+void f_pall(stack_t **head, unsigned int number);
+void f_pint(stack_t **head, unsigned int number);
+int execute(char *content, stack_t **head, unsigned int counter, FILE *file);
+void free_stack(stack_t *head);
+void f_pop(stack_t **head, unsigned int counter);
+void f_swap(stack_t **head, unsigned int counter);
+void f_add(stack_t **head, unsigned int counter);
+void f_nop(stack_t **head, unsigned int counter);
+void f_sub(stack_t **head, unsigned int counter);
+void f_div(stack_t **head, unsigned int counter);
+void f_mul(stack_t **head, unsigned int counter);
+void f_mod(stack_t **head, unsigned int counter);
+void f_pchar(stack_t **head, unsigned int counter);
+void f_pstr(stack_t **head, unsigned int counter);
+void f_rotl(stack_t **head, unsigned int counter);
+void f_rotr(stack_t **head, __attribute__((unused)) unsigned int counter);
+void addnode(stack_t **head, int n);
+void addqueue(stack_t **head, int n);
+void f_queue(stack_t **head, unsigned int counter);
+void f_stack(stack_t **head, unsigned int counter);
+#endif
